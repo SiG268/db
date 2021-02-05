@@ -111,12 +111,10 @@ public class MitgliederDB implements Iterable<Record> {
         int blockNumber = this.getBlockNumOfRecord(recNum);
         if (blockNumber != -1) {
             DBBlock block = this.getBlock(blockNumber);
-            if (block != null) {
-                int counter = 0;
-                for (int i = 0; i < blockNumber; i++) {
-                    counter = counter + getBlock(i).getNumberOfRecords();
-                }
-                return block.getRecord(recNum - counter);
+            if (block!=null){
+                int i = getFirstRecordNumberFormBlock(blockNumber) - 1;
+                int recordNumberInBlock = recNum - i;
+                return block.getRecord(recordNumberInBlock);
             }
         }
         return null;
@@ -152,12 +150,17 @@ public class MitgliederDB implements Iterable<Record> {
         return -1;
     }
 
-
-    private int getFirstRecordNumberFormBlock(int blockNum) {
-            DBBlock block = this.getBlock(blockNum);
+    /**
+     * Returns the record number of the first record form the given block
+     *
+     * @param blockNumber Number form block
+     * @return the record number of the first record
+     */
+    private int getFirstRecordNumberFormBlock(int blockNumber) {
+            DBBlock block = this.getBlock(blockNumber);
             if (block != null) {
                 int counter = 0;
-                for (int i = 0; i < blockNum; i++) {
+                for (int i = 0; i < blockNumber; i++) {
                     counter = counter + getBlock(i).getNumberOfRecords();
                 }
                 return counter+1;
@@ -167,17 +170,21 @@ public class MitgliederDB implements Iterable<Record> {
 
 
     /**
-     * Deletes the record specified
+     * Deletes or replaces the record specified
      *
-     * @param numRecord number of the record to be deleted
+     * @param numRecord number of the record to be deleted or replaced
+     * @param record    the new record. If null old record will be deleted
      */
-    public void delete(int numRecord) {
+    public void modDel(int numRecord, Record record){
         ArrayList<Record> records = new ArrayList<>();
         int blockNumber = getBlockNumOfRecord(numRecord);
         int firstBlockNumber = getFirstRecordNumberFormBlock(getBlockNumOfRecord(numRecord));
         for (int i = firstBlockNumber; i <= getNumberOfRecords(); i++) {
             if(i!=numRecord) {
                 records.add(read(i));
+            }
+            else if(record!=null){
+                records.add(record);
             }
         }
         for(int i=blockNumber; i<db.length;i++){
@@ -189,6 +196,14 @@ public class MitgliederDB implements Iterable<Record> {
     }
 
 
+    /**
+     * Deletes the record specified
+     *
+     * @param numRecord number of the record to be deleted
+     */
+    public void delete(int numRecord) {
+        modDel(numRecord, null);
+    }
 
 
 
@@ -199,23 +214,7 @@ public class MitgliederDB implements Iterable<Record> {
      * @param record    the new record
      */
     public void modify(int numRecord, Record record) {
-        ArrayList<Record> records = new ArrayList<>();
-        int blockNumber = getBlockNumOfRecord(numRecord);
-        int firstBlockNumber = getFirstRecordNumberFormBlock(getBlockNumOfRecord(numRecord));
-        for (int i = firstBlockNumber; i <= getNumberOfRecords(); i++) {
-            if(i!=numRecord) {
-                records.add(read(i));
-            }
-            else{
-                records.add(record);
-            }
-        }
-        for(int i=blockNumber; i<db.length;i++){
-            db[i]=new DBBlock();
-        }
-        for(Record r: records){
-            this.appendRecord(r);
-        }
+        modDel(numRecord, record);
     }
 
 
