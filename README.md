@@ -5,6 +5,10 @@ Um die jeweilige Mitglieder DB zu starten müssen folgende Java Dateien ausgefü
 Sortierte DB: [StartMitgliederDBOrdered.java](src/dbfileorga/StartMitgliederDBOrdered.java)  
 Unsortierte DB: [StartMitgliederDB.java](src/dbfileorga/StartMitgliederDB.java)
 
+### Gruppenaufteilung
+Jedes Mitglied war gleichermaßen an dem Projekt beteiligt.  
+Hierbei wurden alle Funktionalitäten zusammen im Team entwickelt.
+
 ### Beachtete Spezialfälle
 - Es entsteht keine Lücke beim Löschen
 - Bei einer Modifikation die Länger/kürzer ist werden die Records nach vorne/hinten verschoben
